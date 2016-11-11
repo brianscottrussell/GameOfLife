@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016 Brian Scott Russell  All Rights Reserved.
+  ~ The source code is owned by Brian Scott Russell and is protected by copyright
+  ~ laws and international copyright treaties, as well as other intellectual
+  ~ property laws and treaties.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
