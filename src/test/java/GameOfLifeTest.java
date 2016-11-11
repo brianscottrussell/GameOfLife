@@ -5,8 +5,18 @@
  * property laws and treaties.
  */
 
+import com.brianscottrussell.gameoflife.GameGrid;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author brussell
  */
 public class GameOfLifeTest {
+
+    @Test
+    public void testEmptyGrid() {
+        GameGrid gameGrid = new GameGrid(4,8);
+
+    }
 }
