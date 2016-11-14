@@ -34,24 +34,28 @@ public class GameGrid {
     private CellStatus[][] grid = new CellStatus[0][0];
     private int rowCount = 0;
     private int colCount = 0;
+    private int generation = 1;
 
     /**
      * Constructor for a grid of size (rowCount x colCount) where all cells are Dead
      *
      * @param rowCount int as # of rows in the grid
      * @param colCount int as # of cols in the grid
+     * @param generation int as the starting generation #
      */
-    public GameGrid(int rowCount, int colCount) {
+    public GameGrid(int rowCount, int colCount, int generation) {
         // initialize the grid with the given row & column counts
         initializeGrid(rowCount, colCount);
+        this.generation = generation;
     }
 
     /**
      * Constructor which builds a GameGrid object from the given String
      *
      * @param gridAsString String
+     * @param generation int as the starting generation #
      */
-    public GameGrid(String gridAsString) {
+    public GameGrid(String gridAsString, int generation) {
         // validate input string
         if(!isGridInputStringValid(gridAsString)) {
             // Grid Input is invalid
@@ -105,10 +109,11 @@ public class GameGrid {
             }
         }
 
+        this.generation = generation;
     }
 
-    private void setGrid(CellStatus[][] grid) {
-        this.grid = grid;
+    public int getGeneration() {
+        return generation;
     }
 
     private enum CellStatus {
@@ -426,18 +431,10 @@ public class GameGrid {
     }
 
     /**
-     * Builds a string representation of the GameGrid and prints to System.out
-     *  if given a generation greater than 0, adds a header
-     *    "Generation X" above the grid
-     *
-     * @param generation int
+     * Builds a String representation of the GameGrid
      */
-    public void printGrid(int generation) {
+    public String asString() {
         StringBuilder output = new StringBuilder();
-
-        if(generation > 0) {
-            output.append("Generation ").append(generation);
-        }
 
         if(null != this.grid) {
             // TODO: can do better than O(n^2)?
@@ -452,11 +449,12 @@ public class GameGrid {
             }
         }
 
-        System.out.println(output.toString());
+        return output.toString();
     }
 
     /**
      * runs the rules on the grid to move to the next generation
+     *  the result is an updated grid and an incremented generation
      */
     public void incrementGeneration() {
         CellStatus[][] nextGenerationGrid = new CellStatus[rowCount][colCount];
@@ -493,6 +491,7 @@ public class GameGrid {
             }
         }
 
-        setGrid(nextGenerationGrid);
+        this.grid = nextGenerationGrid;
+        this.generation++;
     }
 }
