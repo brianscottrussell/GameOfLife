@@ -20,6 +20,9 @@ public class GameGrid {
 
     private static final String LF = System.lineSeparator();
 
+    private static final char DEAD_SYMBOL = '.';
+    private static final char ALIVE_SYMBOL = '*';
+
     public static final String DEFAULT_GAME_GRID_INPUT =
             "4 8" + LF
             + "........" + LF
@@ -50,21 +53,26 @@ public class GameGrid {
      */
     public GameGrid(String gridAsString) {
         // validate input string
-        if(isGridInputStringValid(gridAsString)) {
+        if(!isGridInputStringValid(gridAsString)) {
+            // Grid Input is invalid
+            // initialize empty grid
+            initializeGrid(0, 0);
+        }
+        else {
             // Grid Input is valid
             int rowCount = 0;
             int colCount = 0;
 
             // get row/col counts from input
             try {
-                // TODO: get the character(s), before the 1st space as the rowCount
+                // get the character(s), before the 1st space as the rowCount
                 rowCount = Integer.valueOf(StringUtils.substring(gridAsString, 0, StringUtils.indexOf(gridAsString, ' ')));
             } catch (NumberFormatException e) {
                 // TODO: handle error more gracefully
                 System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
             }
             try {
-                // TODO: get the character(s), before the 1st carriage return as the rowCount
+                // get the character(s), before the 1st carriage return as the rowCount
                 colCount = Integer.valueOf(StringUtils.substring(gridAsString, StringUtils.indexOf(gridAsString,  ' ') + 1, StringUtils.indexOf(gridAsString, LF)));
             } catch (NumberFormatException e) {
                 // TODO: handle error more gracefully
@@ -79,35 +87,87 @@ public class GameGrid {
                 //   this is the input Grid that will give us the starting point of each cell as Alive or Dead
                 String[] gridRows = StringUtils.split(StringUtils.substringAfter(gridAsString, LF), LF);
                 // iterate over the rows of the grid
-                for (String row : gridRows) {
-                    // TODO: update live cells using input
+                // todo: improve from O(n^2)
+                int rowIndex = 0;
+                for (String row: gridRows) {
+                    // iterate over the chars of the row String
+                    int colIndex = 0;
+                    for(char symbol: row.toCharArray()) {
+                        // check if a valid CellStatus symbol, otherwise skip it.
+                        if(CellStatus.isValidCellStatusSymbol(symbol)) {
+                            // if the cell is "alive", make it Alive in the CellStatus grid
+                            this.grid[rowIndex][colIndex] = CellStatus.getCellStatusBySymbol(symbol);
+                            colIndex++;
+                        }
+                    }
+                    rowIndex++;
                 }
             }
-
-
-        }
-        else {
-            // Grid Input is invalid
-            // initialize empty grid
-            initializeGrid(0, 0);
         }
 
     }
 
-    private enum CellStatus {
-        Alive,
-        Dead;
+    private void setGrid(CellStatus[][] grid) {
+        this.grid = grid;
+    }
 
-        public char getPrintSymbol() {
-            switch(this) {
-                case Alive:
-                    return '*';
-                case Dead:
-                    return '.';
-                default:
-                    return Dead.getPrintSymbol();
-            }
+    private enum CellStatus {
+        Dead(DEAD_SYMBOL),
+        Alive(ALIVE_SYMBOL)
+        ;
+
+        private char symbol;
+
+        CellStatus(char symbol) {
+            this.symbol = symbol;
         }
+
+        public char getSymbol() {
+            return symbol;
+        }
+
+        /**
+         * Simply checks the symbol to see if it matches the Alive symbol.
+         *   if so, returns Alive
+         *   otherwise returns Dead
+         *
+         * @param symbol as the symbol to test
+         * @return CellStatus as Dead by default
+         */
+        public static CellStatus getCellStatusBySymbol(char symbol) {
+            return symbol == Alive.getSymbol() ? Alive : Dead;
+        }
+
+        /**
+         * Helper method to test if the symbol is one for the Dead enum
+         *
+         * @param symbol char as the symbol to test
+         * @return boolean true if is the symbol for Dead
+         */
+        public static boolean isDeadSymbol(char symbol) {
+            return symbol == CellStatus.Dead.getSymbol();
+        }
+
+        /**
+         * Helper method to test if the symbol is one for the Alive enum
+         *
+         * @param symbol char as the symbol to test
+         * @return boolean true if is the symbol for Alive
+         */
+        public static boolean isAliveSymbol(char symbol) {
+            return symbol == CellStatus.Alive.getSymbol();
+        }
+
+        /**
+         * Helper method to test if the symbol is valid as either a Dead or Alive symbol
+         *
+         * @param symbol char as the symbol to test
+         * @return boolean true if is the symbol for Dead or Alive
+         */
+        public static boolean isValidCellStatusSymbol(char symbol) {
+            return isDeadSymbol(symbol) || isAliveSymbol(symbol);
+        }
+
     }
 
 
@@ -157,11 +217,25 @@ public class GameGrid {
      * @return boolean as true if input String is valid
      */
     private boolean isGridInputStringValid(String gridInput) {
+        // TODO: check string is valid
         if(StringUtils.isNotBlank(gridInput)) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Given the grid coordinates indicated by row & col:
+     *  return true if the coordinates exist in this grid
+     *  return false if the coordinates do not exist in this grid
+     *
+     * @param row int
+     * @param col int
+     * @return boolean
+     */
+    private boolean isCellInGrid(int row, int col) {
+        return (row >= 0 && col >= 0) && (row < this.rowCount && col < this.colCount);
     }
 
     /**
@@ -173,54 +247,173 @@ public class GameGrid {
      * @return CellStatus
      */
     private CellStatus getCellStatus(int row, int col) {
-        return isValidCell(row, col) ? grid[row][col] : CellStatus.Dead;
+        return isCellInGrid(row, col) ? grid[row][col] : CellStatus.Dead;
     }
 
     /**
-     * Give the grid coordinates indicated by row & col:
-     *  return true if the coordinates exist in this grid
-     *  return false if the coordinates do not exist in this grid
+     * Given the grid coordinates indicated by row & col:
+     *  return true if the current cell is Dead
      *
      * @param row int
      * @param col int
-     * @return boolean
+     * @return boolean true if this cell is Dead
      */
-    private boolean isValidCell(int row, int col) {
-        return row >= 0 && col >= 0 && row < this.rowCount && col < this.colCount;
-    }
-
-
-
-    /**
-     * Prints the Grid without printing the current Generation as header
-     */
-    public void printGrid() {
-        printGrid(0);
+    private boolean isCellDead(int row, int col) {
+        return getCellStatus(row, col).equals(CellStatus.Dead);
     }
 
     /**
-     * Builds a string representation of the GameGrid and prints to System.out
-     *  if given a non null generation greater than 0, adds a header
-     *    "Generation X" above the grid
+     * Given the grid coordinates indicated by row & col:
+     *  return true if the current cell is Alive
+     *
+     * @param row int
+     * @param col int
+     * @return boolean true if this cell is Alive
      */
-    public void printGrid(Integer generation) {
-        StringBuilder output = new StringBuilder();
+    private boolean isCellAlive(int row, int col) {
+        return getCellStatus(row, col).equals(CellStatus.Alive);
+    }
 
-        if(null != generation && generation > 0) {
-            output.append("Generation ").append(generation);
+    /**
+     * Given the grid coordinates indicated by row & col:
+     *  checks the adjacent cells to count how many are alive
+     *  this takes into account that the given coordinate might be at the edge of the grid
+     *
+     * @param row int
+     * @param col int
+     * @return int as count of living neighbors
+     */
+    private int countLivingNeighbors(int row, int col) {
+
+        int livingNeighborCount = 0;
+
+        /**
+         * Checks if the upper left cell is alive (O = current cell, # = cell to check)
+             #xx
+             xOx
+             xxx
+        */
+        if(isCellInGrid(row - 1, col - 1) && isCellAlive(row - 1, col - 1)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the upper cell is alive (O = current cell, # = cell to check)
+             x#x
+             xOx
+             xxx
+        */
+        if(isCellInGrid(row - 1, col) && isCellAlive(row - 1, col)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the upper right cell is alive (O = current cell, # = cell to check)
+             xx#
+             xOx
+             xxx
+        */
+        if(isCellInGrid(row - 1, col + 1) && isCellAlive(row - 1, col + 1)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the left cell is alive (O = current cell, # = cell to check)
+             xxx
+             #Ox
+             xxx
+        */
+        if(isCellInGrid(row, col - 1) && isCellAlive(row, col - 1)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the right cell is alive (O = current cell, # = cell to check)
+             xxx
+             xO#
+             xxx
+        */
+        if(isCellInGrid(row, col + 1) && isCellAlive(row, col + 1)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the lower left cell is alive (O = current cell, # = cell to check)
+             xxx
+             xOx
+             #xx
+        */
+        if(isCellInGrid(row + 1, col - 1) && isCellAlive(row + 1, col - 1)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the lower cell is alive (O = current cell, # = cell to check)
+             xxx
+             xOx
+             x#x
+        */
+        if(isCellInGrid(row + 1, col) && isCellAlive(row + 1, col)) {
+            livingNeighborCount++;
+        }
+        /**
+         * Checks if the lower right cell is alive (O = current cell, # = cell to check)
+             xxx
+             xOx
+             xx#
+        */
+        if(isCellInGrid(row + 1, col + 1) && isCellAlive(row + 1, col + 1)) {
+            livingNeighborCount++;
         }
 
-        for (int row = 0; row < this.rowCount; row++) {
-            for(int col = 0; col < this.colCount; col++) {
-                // if this is the 1st column of the row, add return carriage
-                if(col == 0) {
-                    output.append(LF);
-                }
-                output.append(isValidCell(row, col) ? this.grid[row][col].getPrintSymbol() : '_');
-            }
-        }
+        return livingNeighborCount;
+    }
 
-        System.out.println(output.toString());
+    /**
+     * Given the grid coordinates indicated by row & col:
+     *  run the 1st rule outlined in the game on the cell during a generation change
+     *
+     *   1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+     *
+     * @param row int
+     * @param col int
+     */
+    private boolean matchesRuleOne(int row, int col) {
+        return isCellAlive(row, col) && countLivingNeighbors(row, col) < 2;
+    }
+
+    /**
+     * Given the grid coordinates indicated by row & col:
+     *  run the 2nd rule outlined in the game on the cell during a generation change
+     *
+     *   2. Any live cell with more than three live neighbours dies, as if by overcrowding.
+     *
+     * @param row int
+     * @param col int
+     */
+    private boolean matchesRuleTwo(int row, int col) {
+        return isCellAlive(row, col) && countLivingNeighbors(row, col) > 3;
+    }
+
+    /**
+     * Given the grid coordinates indicated by row & col:
+     *  run the 3rd rule outlined in the game on the cell during a generation change
+     *
+     *   3. Any live cell with two or three live neighbours lives on to the next generation.
+     *
+     * @param row int
+     * @param col int
+     */
+    private boolean matchesRuleThree(int row, int col) {
+        int livingNeighbors = countLivingNeighbors(row, col);
+        return isCellAlive(row, col) && (livingNeighbors == 2 || livingNeighbors == 3);
+    }
+
+    /**
+     * Given the grid coordinates indicated by row & col:
+     *  run the 4th rule outlined in the game on the cell during a generation change
+     *
+     *   4. Any dead cell with exactly three live neighbours becomes a live cell.
+     *
+     * @param row int
+     * @param col int
+     */
+    private boolean matchesRuleFour(int row, int col) {
+        return isCellDead(row, col) && countLivingNeighbors(row, col) == 3;
     }
 
     @Override
@@ -230,5 +423,76 @@ public class GameGrid {
                 ", rowCount=" + rowCount +
                 ", colCount=" + colCount +
                 '}';
+    }
+
+    /**
+     * Builds a string representation of the GameGrid and prints to System.out
+     *  if given a generation greater than 0, adds a header
+     *    "Generation X" above the grid
+     *
+     * @param generation int
+     */
+    public void printGrid(int generation) {
+        StringBuilder output = new StringBuilder();
+
+        if(generation > 0) {
+            output.append("Generation ").append(generation);
+        }
+
+        if(null != this.grid) {
+            // TODO: can do better than O(n^2)?
+            for (int row = 0; row < this.rowCount; row++) {
+                for (int col = 0; col < this.colCount; col++) {
+                    // if this is the 1st column of the row, add return carriage
+                    if (col == 0) {
+                        output.append(LF);
+                    }
+                    output.append(isCellInGrid(row, col) ? this.grid[row][col].getSymbol() : '_');
+                }
+            }
+        }
+
+        System.out.println(output.toString());
+    }
+
+    /**
+     * runs the rules on the grid to move to the next generation
+     */
+    public void incrementGeneration() {
+        CellStatus[][] nextGenerationGrid = new CellStatus[rowCount][colCount];
+        // TODO: can do better than O(n^2)?
+        for (int row = 0; row < this.rowCount; row++) {
+            for(int col = 0; col < this.colCount; col++) {
+                // enforce rules on this cell
+                if(isCellInGrid(row, col)) {
+                    //   1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+                    if(matchesRuleOne(row, col)) {
+                        // kill cell
+                        nextGenerationGrid[row][col] = CellStatus.Dead;
+                    }
+                    //   2. Any live cell with more than three live neighbours dies, as if by overcrowding.
+                    else if(matchesRuleTwo(row, col)) {
+                        // kill cell
+                        nextGenerationGrid[row][col] = CellStatus.Dead;
+                    }
+                    //   3. Any live cell with two or three live neighbours lives on to the next generation.
+                    else if(matchesRuleThree(row, col)) {
+                        // resurrect cell
+                        nextGenerationGrid[row][col] = CellStatus.Alive;
+                    }
+                    //   4. Any dead cell with exactly three live neighbours becomes a live cell.
+                    else if(matchesRuleFour(row, col)) {
+                        // resurrect cell
+                        nextGenerationGrid[row][col] = CellStatus.Alive;
+                    }
+                    else {
+                        // just copy cell
+                        nextGenerationGrid[row][col] = this.grid[row][col];
+                    }
+                }
+            }
+        }
+
+        setGrid(nextGenerationGrid);
     }
 }

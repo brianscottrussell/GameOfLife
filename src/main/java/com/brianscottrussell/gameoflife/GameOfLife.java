@@ -25,26 +25,32 @@ package com.brianscottrussell.gameoflife;
 public class GameOfLife {
 
     public static void main(String[] args) {
-        runGameOfLife(GameGrid.DEFAULT_GAME_GRID_INPUT, 2);
+        runGameOfLife(GameGrid.DEFAULT_GAME_GRID_INPUT, 20);
     }
 
     private static void runGameOfLife(String gameGridInput, Integer generations) {
-        // debug: print input
-        System.out.println("Game Grid Input");
+        // TODO: REMOVE DEBUG
+        System.out.println("************ Game Grid Input ************");
         System.out.println(gameGridInput);
+        System.out.println("*****************************************");
 
         // instantiate a new GameGrid using the input as string
         GameGrid gameGrid = new GameGrid(gameGridInput);
 
         // start at generation 1, which is the initial grid
         int generation = 1;
+        // adding a line for easier readability
+        System.out.println();
         // print grid
         gameGrid.printGrid(generation);
 
         while(generation < generations) {
             // iterate the generation
             generation++;
-            // TODO: update the gameGrid for this generation
+            // update the gameGrid for this generation
+            gameGrid.incrementGeneration();
+            // adding a line for easier readability
+            System.out.println();
             // print grid
             gameGrid.printGrid(generation);
         }

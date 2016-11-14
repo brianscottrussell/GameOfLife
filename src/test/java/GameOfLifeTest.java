@@ -6,7 +6,6 @@
  */
 
 import com.brianscottrussell.gameoflife.GameGrid;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -19,4 +18,11 @@ public class GameOfLifeTest {
         GameGrid gameGrid = new GameGrid(4,8);
 
     }
+
+    // test reading file input
+    // test validation of input
+    // test printing grid
+    // test generation increment
+
+    //
 }
