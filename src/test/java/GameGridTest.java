@@ -6,6 +6,8 @@
  */
 
 import com.brianscottrussell.gameoflife.GameGrid;
+import com.brianscottrussell.gameoflife.GameOfLife;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -13,72 +15,90 @@ import org.junit.Test;
  */
 public class GameGridTest {
 
-    private static final String LF = System.lineSeparator();
+    private static final String TEST_INVALID_GAME_GRID_HEADER = "G 4" + GameOfLife.LF;
+    private static final String TEST_INVALID_GAME_GRID =
+              ".*" + GameOfLife.LF
+            + ".&@" + GameOfLife.LF
+            + ".*"
+            ;
 
+    private static final String TEST_3X3_GAME_GRID_HEADER = "3 3" + GameOfLife.LF;
     private static final String TEST_3x3_GAME_GRID_ALL_DEAD =
-            "3 3" + LF
-            + "..." + LF
-            + "..." + LF
-            + "..." + LF
+              "..." + GameOfLife.LF
+            + "..." + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_1_ALIVE =
-            "3 3" + LF
-            + "*.." + LF
-            + "..." + LF
-            + "..." + LF
+              "*.." + GameOfLife.LF
+            + "..." + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_2_ALIVE =
-            "3 3" + LF
-            + "**." + LF
-            + "..." + LF
-            + "..." + LF
+              "**." + GameOfLife.LF
+            + "..." + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_3_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "..." + LF
-            + "..." + LF
+              "***" + GameOfLife.LF
+            + "..." + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_4_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "*.." + LF
-            + "..." + LF
+              "***" + GameOfLife.LF
+            + "*.." + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_5_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "**." + LF
-            + "..." + LF
+              "***" + GameOfLife.LF
+            + "**." + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_6_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "***" + LF
-            + "..." + LF
+              "***" + GameOfLife.LF
+            + "***" + GameOfLife.LF
+            + "..."
             ;
     private static final String TEST_3x3_GAME_GRID_7_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "***" + LF
-            + "*.." + LF
+              "***" + GameOfLife.LF
+            + "***" + GameOfLife.LF
+            + "*.."
             ;
     private static final String TEST_3x3_GAME_GRID_8_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "***" + LF
-            + "**." + LF
+              "***" + GameOfLife.LF
+            + "***" + GameOfLife.LF
+            + "**."
             ;
     private static final String TEST_3x3_GAME_GRID_9_ALIVE =
-            "3 3" + LF
-            + "***" + LF
-            + "***" + LF
-            + "***" + LF
+              "***" + GameOfLife.LF
+            + "***" + GameOfLife.LF
+            + "***"
             ;
 
-    public void testAllDead() {
-        GameGrid gameGrid = new GameGrid(TEST_3x3_GAME_GRID_ALL_DEAD, 1);
+    @Test
+    public void testInvalidGameGridHeaderInput() {
+        GameGrid gameGrid = new GameGrid(TEST_INVALID_GAME_GRID_HEADER + TEST_3x3_GAME_GRID_ALL_DEAD);
         gameGrid.incrementGeneration();
+        Assert.assertEquals("", gameGrid.asString());
+    }
 
+    @Test
+    public void testInvalidGameGridInput() {
+        GameGrid gameGrid = new GameGrid(TEST_3X3_GAME_GRID_HEADER + TEST_INVALID_GAME_GRID);
+        gameGrid.incrementGeneration();
+        Assert.assertEquals(TEST_3x3_GAME_GRID_ALL_DEAD, gameGrid.asString());
+    }
+
+    @Test
+    public void testIncrementGeneration() {
+        GameGrid gameGrid = new GameGrid(TEST_3X3_GAME_GRID_HEADER + TEST_3x3_GAME_GRID_ALL_DEAD);
+        gameGrid.incrementGeneration();
+        Assert.assertEquals(2, gameGrid.getGeneration());
+    }
+
+    @Test
+    public void testAllDead() {
+        GameGrid gameGrid = new GameGrid(TEST_3X3_GAME_GRID_HEADER + TEST_3x3_GAME_GRID_ALL_DEAD);
+        gameGrid.incrementGeneration();
+        Assert.assertEquals(TEST_3x3_GAME_GRID_ALL_DEAD, gameGrid.asString());
     }
 }

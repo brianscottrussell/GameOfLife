@@ -24,8 +24,18 @@ package com.brianscottrussell.gameoflife;
  */
 public class GameOfLife {
 
+    public static final String LF = System.lineSeparator();
+
+    public static final String DEFAULT_GAME_GRID_INPUT =
+            "4 8" + LF
+            + "........" + LF
+            + "....*..." + LF
+            + "...**..." + LF
+            + "........"
+            ;
+
     public static void main(String[] args) {
-        runGameOfLife(GameGrid.DEFAULT_GAME_GRID_INPUT, 20);
+        runGameOfLife(DEFAULT_GAME_GRID_INPUT, 20);
     }
 
     private static void runGameOfLife(String gameGridInput, Integer generations) {
@@ -35,7 +45,7 @@ public class GameOfLife {
         System.out.println("*****************************************");
 
         // instantiate a new GameGrid using the input as string
-        GameGrid gameGrid = new GameGrid(gameGridInput, 1);
+        GameGrid gameGrid = new GameGrid(gameGridInput);
 
         // adding a line for easier readability
         System.out.println();

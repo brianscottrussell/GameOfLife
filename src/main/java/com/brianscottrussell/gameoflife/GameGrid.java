@@ -18,18 +18,8 @@ import java.util.Arrays;
  */
 public class GameGrid {
 
-    private static final String LF = System.lineSeparator();
-
     private static final char DEAD_SYMBOL = '.';
     private static final char ALIVE_SYMBOL = '*';
-
-    public static final String DEFAULT_GAME_GRID_INPUT =
-            "4 8" + LF
-            + "........" + LF
-            + "....*..." + LF
-            + "...**..." + LF
-            + "........"
-            ;
 
     private CellStatus[][] grid = new CellStatus[0][0];
     private int rowCount = 0;
@@ -41,21 +31,22 @@ public class GameGrid {
      *
      * @param rowCount int as # of rows in the grid
      * @param colCount int as # of cols in the grid
-     * @param generation int as the starting generation #
      */
-    public GameGrid(int rowCount, int colCount, int generation) {
+    public GameGrid(int rowCount, int colCount) {
         // initialize the grid with the given row & column counts
         initializeGrid(rowCount, colCount);
-        this.generation = generation;
+        this.generation = 1;
     }
 
     /**
      * Constructor which builds a GameGrid object from the given String
      *
+     * if there is an invalid header format then this will initialize the grid as 0x0, empty grid
+     * if there is an invalid body format then this will initialize the grid as the header size, all Dead cells
+     *
      * @param gridAsString String
-     * @param generation int as the starting generation #
      */
-    public GameGrid(String gridAsString, int generation) {
+    public GameGrid(String gridAsString) {
         // validate input string
         if(!isGridInputStringValid(gridAsString)) {
             // Grid Input is invalid
@@ -77,7 +68,7 @@ public class GameGrid {
             }
             try {
                 // get the character(s), before the 1st carriage return as the rowCount
-                colCount = Integer.valueOf(StringUtils.substring(gridAsString, StringUtils.indexOf(gridAsString,  ' ') + 1, StringUtils.indexOf(gridAsString, LF)));
+                colCount = Integer.valueOf(StringUtils.substring(gridAsString, StringUtils.indexOf(gridAsString,  ' ') + 1, StringUtils.indexOf(gridAsString, GameOfLife.LF)));
             } catch (NumberFormatException e) {
                 // TODO: handle error more gracefully
                 System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -89,7 +80,7 @@ public class GameGrid {
             if(rowCount > 0 && colCount > 0) {
                 // split the input string so that we're getting all lines of the string as rows, after the first line.
                 //   this is the input Grid that will give us the starting point of each cell as Alive or Dead
-                String[] gridRows = StringUtils.split(StringUtils.substringAfter(gridAsString, LF), LF);
+                String[] gridRows = StringUtils.split(StringUtils.substringAfter(gridAsString, GameOfLife.LF), GameOfLife.LF);
                 // iterate over the rows of the grid
                 // todo: improve from O(n^2)
                 int rowIndex = 0;
@@ -109,7 +100,7 @@ public class GameGrid {
             }
         }
 
-        this.generation = generation;
+        this.generation = 1;
     }
 
     public int getGeneration() {
@@ -440,9 +431,9 @@ public class GameGrid {
             // TODO: can do better than O(n^2)?
             for (int row = 0; row < this.rowCount; row++) {
                 for (int col = 0; col < this.colCount; col++) {
-                    // if this is the 1st column of the row, add return carriage
-                    if (col == 0) {
-                        output.append(LF);
+                    // if this is not the 1st row, and is the 1st column of the row, add return carriage
+                    if (row != 0 && col == 0) {
+                        output.append(GameOfLife.LF);
                     }
                     output.append(isCellInGrid(row, col) ? this.grid[row][col].getSymbol() : '_');
                 }
