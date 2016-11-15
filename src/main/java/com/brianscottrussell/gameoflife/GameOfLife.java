@@ -62,24 +62,36 @@ public class GameOfLife {
         // instantiate a new GameGrid using the input as string
         GameGrid gameGrid = new GameGrid(gameGridInput);
 
+        // print 1st generation
+        printGeneration(gameGrid);
+
+        // loop through the generations requested to print out the resulting grid
+        while(gameGrid.getGeneration() < generations) {
+            // update the gameGrid for this generation
+            gameGrid.incrementGeneration();
+            // print generation
+            printGeneration(gameGrid);
+        }
+    }
+
+    /**
+     * prints the generation with a header and the grid
+     *  e.g.
+        Generation 1
+        ........
+        ....*...
+        ...**...
+        ........
+     *
+     * @param gameGrid
+     */
+    private static void printGeneration(GameGrid gameGrid) {
         // adding a line for easier readability
         System.out.println();
         // print grid header
         System.out.println( "Generation " + gameGrid.getGeneration() );
         // print grid
         System.out.println( gameGrid.asString() );
-
-        // loop through the generations requested to print out the resulting grid
-        while(gameGrid.getGeneration() < generations) {
-            // update the gameGrid for this generation
-            gameGrid.incrementGeneration();
-            // adding a line for easier readability
-            System.out.println();
-            // print grid header
-            System.out.println( "Generation " + gameGrid.getGeneration() );
-            // print grid
-            System.out.println( gameGrid.asString() );
-        }
     }
 
     /**
