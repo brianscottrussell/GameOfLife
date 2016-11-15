@@ -7,6 +7,10 @@ package com.brianscottrussell.gameoflife;
  * property laws and treaties.
  */
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 /**
  * Implementation of the Game of Life Kata: http://codingdojo.org/cgi-bin/index.pl?KataGameOfLife
  *
@@ -20,24 +24,31 @@ package com.brianscottrussell.gameoflife;
  *   4. Any dead cell with exactly three live neighbours becomes a live cell.
  * You should write a program that can accept an arbitrary grid of cells, and will output a similar grid showing the next generation.
  *
- * TODO: retrieve input grid from text file
- *
  * @author brussell
  */
 public class GameOfLife {
 
     public static final String LF = System.lineSeparator();
 
-    public static final String DEFAULT_GAME_GRID_INPUT =
+    private static final String DEFAULT_GAME_GRID_INPUT =
             "4 8" + LF
             + "........" + LF
             + "....*..." + LF
             + "...**..." + LF
             + "........"
             ;
+    private static final String DEFAULT_INPUT_FILE_LOCATION = "DefaultInputGrid.txt";
 
     public static void main(String[] args) {
-        runGameOfLife(DEFAULT_GAME_GRID_INPUT, 20);
+        String inputFileLocation = DEFAULT_INPUT_FILE_LOCATION;
+
+        if(null != args && args.length > 0) {
+            inputFileLocation = args[0];
+        }
+
+        String inputGrid = readInputGridFromFileLocation(inputFileLocation);
+
+        runGameOfLife(inputGrid, 2);
     }
 
     /**
@@ -48,11 +59,6 @@ public class GameOfLife {
      * @param generations Integer
      */
     private static void runGameOfLife(String gameGridInput, Integer generations) {
-        // TODO: REMOVE DEBUG
-        System.out.println("************ Game Grid Input ************");
-        System.out.println(gameGridInput);
-        System.out.println("*****************************************");
-
         // instantiate a new GameGrid using the input as string
         GameGrid gameGrid = new GameGrid(gameGridInput);
 
@@ -76,5 +82,20 @@ public class GameOfLife {
         }
     }
 
-
+    /**
+     * Given the file location, attempts to read the input grid from text file
+     *
+     * If there is any issue with the file location or reading the file, returns the default game grid
+     *
+     * @param inputFileLocation String as file location
+     * @return String representation of text in file
+     */
+    private static String readInputGridFromFileLocation(String inputFileLocation) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(inputFileLocation)));
+        } catch (IOException e) {
+            System.out.println("Unable to read the file at the location provided. Using default game grid as input.");
+        }
+        return DEFAULT_GAME_GRID_INPUT;
+    }
 }

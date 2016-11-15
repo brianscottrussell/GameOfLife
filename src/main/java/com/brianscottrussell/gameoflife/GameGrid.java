@@ -47,44 +47,41 @@ public class GameGrid {
      * @param gridAsString String
      */
     public GameGrid(String gridAsString) {
-        // validate input string
-        if(!isGridInputStringValid(gridAsString)) {
-            // Grid Input is invalid
-            // initialize empty grid
-            initializeGrid(0, 0);
-        }
-        else {
-            // Grid Input is valid
+        // initialize empty grid
+        initializeGrid(0, 0);
+
+        if(StringUtils.isNotBlank(gridAsString)) {
+            // default the row & col counts to 0
             int rowCount = 0;
             int colCount = 0;
 
             // get row/col counts from input
             try {
-                // get the character(s), before the 1st space as the rowCount
-                rowCount = Integer.valueOf(StringUtils.substring(gridAsString, 0, StringUtils.indexOf(gridAsString, ' ')));
-            } catch (NumberFormatException e) {
-                // TODO: handle error more gracefully
-                System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+                rowCount = parseRowCountFromInputString(gridAsString);
+            } catch (InvalidGameGridInputException e) {
+                // TODO: handle error?
+                // System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
             }
             try {
                 // get the character(s), before the 1st carriage return as the rowCount
-                colCount = Integer.valueOf(StringUtils.substring(gridAsString, StringUtils.indexOf(gridAsString,  ' ') + 1, StringUtils.indexOf(gridAsString, GameOfLife.LF)));
-            } catch (NumberFormatException e) {
-                // TODO: handle error more gracefully
-                System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+                colCount = parseColumnCountFromInputString(gridAsString);
+            } catch (InvalidGameGridInputException e) {
+                // TODO: handle error?
+                // System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
             }
 
-            // initialize grid
-            initializeGrid(rowCount, colCount);
-
+            // only need to move forward if we retrieved valid row & col counts
             if(rowCount > 0 && colCount > 0) {
+                // initialize grid
+                initializeGrid(rowCount, colCount);
+
                 // split the input string so that we're getting all lines of the string as rows, after the first line.
                 //   this is the input Grid that will give us the starting point of each cell as Alive or Dead
                 String[] gridRows = StringUtils.split(StringUtils.substringAfter(gridAsString, GameOfLife.LF), GameOfLife.LF);
                 // iterate over the rows of the grid
                 // todo: improve from O(n^2)
                 int rowIndex = 0;
-                for (String row: gridRows) {
+                for(String row: gridRows) {
                     // iterate over the chars of the row String
                     int colIndex = 0;
                     for(char symbol: row.toCharArray()) {
@@ -100,6 +97,7 @@ public class GameGrid {
             }
         }
 
+        // start the generation at 1
         this.generation = 1;
     }
 
@@ -196,29 +194,51 @@ public class GameGrid {
     }
 
     /**
-     * Given the String input, initializes this GameGrid object.
+     * given the grid input String, parses the row count if this is a valid input String
      *
-     * Expected format of String (very strict):
+     * Sample of expected format of input String where rowCount = 4:
      *
-        r c/n
+        4 8
         ......../n
         ....*.../n
         ...**.../n
         ........
      *
-     *  where r = an integer value indicating the number of rows in the grid
-     *  where c = an integer value indicating the number of columns in the grid
-     *
-     * @param gridInput String as input String
-     * @return boolean as true if input String is valid
+     * @param input String
+     * @return int as the row count
+     * @throws InvalidGameGridInputException
      */
-    private boolean isGridInputStringValid(String gridInput) {
-        // TODO: check string is valid
-        if(StringUtils.isNotBlank(gridInput)) {
-            return true;
+    private int parseRowCountFromInputString(String input) throws InvalidGameGridInputException {
+        try {
+            // get the character(s), before the 1st space as the rowCount
+            return Integer.valueOf(StringUtils.substring(input, 0, StringUtils.indexOf(input, ' ')));
+        } catch (NumberFormatException e) {
+            throw new InvalidGameGridInputException(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
+    }
 
-        return false;
+    /**
+     * given the grid input String, parses the column count if this is a valid input String
+     *
+     * Sample of expected format of input String where columnCount = 8:
+     *
+        4 8
+        ......../n
+        ....*.../n
+        ...**.../n
+        ........
+     *
+     * @param input String
+     * @return int as the column count
+     * @throws InvalidGameGridInputException
+     */
+    private int parseColumnCountFromInputString(String input) throws InvalidGameGridInputException {
+        try {
+            // get the character(s), before the 1st carriage return as the rowCount
+            return Integer.valueOf(StringUtils.substring(input, StringUtils.indexOf(input,  ' ') + 1, StringUtils.indexOf(input, GameOfLife.LF)));
+        } catch (NumberFormatException e) {
+            throw new InvalidGameGridInputException(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
     }
 
     /**
