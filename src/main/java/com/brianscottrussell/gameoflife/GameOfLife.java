@@ -20,6 +20,8 @@ package com.brianscottrussell.gameoflife;
  *   4. Any dead cell with exactly three live neighbours becomes a live cell.
  * You should write a program that can accept an arbitrary grid of cells, and will output a similar grid showing the next generation.
  *
+ * TODO: retrieve input grid from text file
+ *
  * @author brussell
  */
 public class GameOfLife {
@@ -38,6 +40,13 @@ public class GameOfLife {
         runGameOfLife(DEFAULT_GAME_GRID_INPUT, 20);
     }
 
+    /**
+     * Runs the Game of Life by printing out the starting grid and the subsequent grids.
+     *   The game will run for the count indicated by "generations"
+     *
+     * @param gameGridInput String
+     * @param generations Integer
+     */
     private static void runGameOfLife(String gameGridInput, Integer generations) {
         // TODO: REMOVE DEBUG
         System.out.println("************ Game Grid Input ************");
